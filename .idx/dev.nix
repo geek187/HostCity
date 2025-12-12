@@ -46,12 +46,17 @@
   };
 
   # App preview configuration
+  # Force reload
   idx.previews = {
     enable = true;
     previews = {
       web = {
         command = ["npx" "expo" "start" "--web" "--port" "$PORT"];
         manager = "web";
+      };
+      android = {
+        command = ["npx" "expo" "start" "--android"];
+        manager = "android";
       };
     };
   };

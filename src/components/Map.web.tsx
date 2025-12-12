@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Image, Platform } from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
 import { typography } from '../theme/typography';
@@ -20,29 +21,28 @@ const placeImages = [
 export function Map({ initialRegion, markers = [], style }: MapComponentProps) {
   return (
     <View style={[styles.container, style]}>
-      {/* Map Placeholder with Route */}
-      <View style={styles.mapBackground}>
-        {/* Grid pattern */}
-        <View style={styles.grid}>
-          {[...Array(12)].map((_, i) => (
-            <View key={`h${i}`} style={[styles.gridLine, styles.gridH, { top: `${(i + 1) * 8}%` }]} />
-          ))}
-          {[...Array(12)].map((_, i) => (
-            <View key={`v${i}`} style={[styles.gridLine, styles.gridV, { left: `${(i + 1) * 8}%` }]} />
-          ))}
-        </View>
-
-        {/* Route Line */}
-        <View style={styles.routeContainer}>
-          <View style={styles.routeLine}>
-            <View style={[styles.routeDot, styles.routeDotStart]} />
-            <View style={styles.routePath} />
-            <View style={styles.routeDot} />
-            <View style={styles.routePath} />
-            <View style={[styles.routeDot, styles.routeDotEnd]} />
-          </View>
-        </View>
-      </View>
+      <MapView
+        style={styles.map}
+        initialRegion={initialRegion}
+        showsUserLocation
+        showsMyLocationButton
+        showsCompass
+        showsScale
+      >
+        {markers.map((marker) => (
+          <Marker
+            key={marker.id}
+            coordinate={{
+              latitude: marker.latitude,
+              longitude: marker.longitude,
+            }}
+            title={marker.title}
+            description={marker.description}
+            onPress={marker.onPress}
+            pinColor={marker.color}
+          />
+        ))}
+      </MapView>
 
       {/* Location Header */}
       <View style={styles.header}>
@@ -71,44 +71,26 @@ export function Map({ initialRegion, markers = [], style }: MapComponentProps) {
           ))}
         </View>
       )}
-
-      {/* Notice */}
-      <View style={styles.notice}>
-        <Ionicons name="phone-portrait-outline" size={14} color={colors.textTertiary} />
-        <Text style={styles.noticeText}>Full map available on mobile</Text>
-      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
-  mapBackground: {
+  map: {
     flex: 1,
-    backgroundColor: colors.surfaceAlt,
-    position: 'relative',
     borderRadius: radii.lg,
     overflow: 'hidden',
     margin: spacing.base,
   },
-  grid: { ...StyleSheet.absoluteFillObject, opacity: 0.5 },
-  gridLine: { position: 'absolute', backgroundColor: colors.border },
-  gridH: { left: 0, right: 0, height: 1 },
-  gridV: { top: 0, bottom: 0, width: 1 },
-  routeContainer: {
-    position: 'absolute',
-    top: '40%',
-    left: spacing.xl,
-    right: spacing.xl,
-  },
-  routeLine: { flexDirection: 'row', alignItems: 'center' },
-  routeDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: colors.accent },
-  routeDotStart: { width: 14, height: 14, borderRadius: 7 },
-  routeDotEnd: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.textTertiary },
-  routePath: { flex: 1, height: 3, backgroundColor: colors.accent, marginHorizontal: spacing.xs },
   header: {
     paddingHorizontal: spacing.base,
     marginBottom: spacing.md,
+    position: 'absolute',
+    top: spacing.base,
+    left: spacing.base,
+    right: spacing.base,
+    backgroundColor: 'transparent',
   },
   headerLabel: { ...typography.meta, color: colors.textSecondary, marginBottom: 4 },
   headerTitle: { ...typography.h2, color: colors.textPrimary },
@@ -117,6 +99,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.base,
     gap: spacing.md,
     marginBottom: spacing.lg,
+    position: 'absolute',
+    bottom: spacing.base,
+    left: spacing.base,
+    right: spacing.base,
   },
   placeCard: {
     flex: 1,
@@ -148,12 +134,4 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   ratingNumber: { fontSize: 10, color: colors.textPrimary, fontWeight: '700' },
-  notice: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.xs,
-    paddingVertical: spacing.md,
-  },
-  noticeText: { ...typography.meta, color: colors.textTertiary },
 });
