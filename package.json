@@ -4,6 +4,7 @@
   "main": "index.ts",
   "scripts": {
     "start": "expo start",
+    "web": "EXPO_DEV_SERVER_ORIGIN=* expo start --web --port 9002",
     "android": "expo start --android",
     "ios": "expo start --ios"
   },

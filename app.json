@@ -4,6 +4,10 @@
     "slug": "HostCity",
     "version": "1.0.0",
     "orientation": "portrait",
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
