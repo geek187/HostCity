@@ -1,54 +1,140 @@
-# To learn more about how to use Nix to configure your environment
-# see: https://firebase.google.com/docs/studio/customize-workspace
-{ pkgs, ... }: {
-  # Which nixpkgs channel to use.
-  channel = "stable-24.05"; # or "unstable"
+# Firebase Studio workspace configuration for HostCity
+# FIFA World Cup 2026 Host City Guide App
+# https://firebase.google.com/docs/studio/customize-workspace
 
-  # Use https://search.nixos.org/packages to find packages
+{ pkgs, ... }: {
+  # Use stable Nix channel for reliable builds
+  channel = "stable-24.05";
+
+  # System packages required for React Native + Expo development
   packages = [
-    # pkgs.go
-    # pkgs.python311
-    # pkgs.python311Packages.pip
-    # pkgs.nodejs_20
-    # pkgs.nodePackages.nodemon
+    # Node.js runtime
+    pkgs.nodejs_20
+    
+    # Package managers
+    pkgs.yarn
+    
+    # Git for version control
+    pkgs.git
+    
+    # Watchman for file watching (React Native)
+    pkgs.watchman
+    
+    # Java for Android builds
+    pkgs.jdk17
+    
+    # Useful CLI tools
+    pkgs.curl
+    pkgs.unzip
+    pkgs.ripgrep
+    
+    # Google Cloud SDK for Firebase
+    (pkgs.google-cloud-sdk.withExtraComponents [
+      pkgs.google-cloud-sdk.components.gcloud-man-pages
+    ])
   ];
 
-  # Sets environment variables in the workspace
-  env = {};
-  idx = {
-    # Search for the extensions you want on https://open-vsx.org/ and use "publisher.id"
-    extensions = [
-      # "vscodevim.vim"
-    ];
+  # Environment variables
+  env = {
+    # Expo configuration
+    EXPO_DEVTOOLS_LISTEN_ADDRESS = "0.0.0.0";
+    
+    # Android SDK paths (if needed)
+    JAVA_HOME = "${pkgs.jdk17}";
+    
+    # Firebase project (configure as needed)
+    # FIREBASE_PROJECT_ID = "hostcity-2026";
+  };
 
-    # Enable previews
-    previews = {
-      enable = true;
-      previews = {
-        # web = {
-        #   # Example: run "npm run dev" with PORT set to IDX's defined port for previews,
-        #   # and show it in IDX's web preview panel
-        #   command = ["npm" "run" "dev"];
-        #   manager = "web";
-        #   env = {
-        #     # Environment variables to set for your server
-        #     PORT = "$PORT";
-        #   };
-        # };
-      };
+  # IDE extensions for React Native + TypeScript development
+  idx.extensions = [
+    # TypeScript & JavaScript
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    
+    # React & React Native
+    "dsznajder.es7-react-js-snippets",
+    "msjsdiag.vscode-react-native",
+    
+    # Tailwind CSS (for styling reference)
+    "bradlc.vscode-tailwindcss",
+    
+    # Git integration
+    "eamodio.gitlens",
+    
+    # Path autocomplete
+    "christian-kohler.path-intellisense",
+    
+    # Bracket colorization
+    "CoenraadS.bracket-pair-colorizer-2",
+    
+    # Icons
+    "vscode-icons-team.vscode-icons",
+    
+    # Firebase
+    "toba.vsfire",
+    
+    # REST client for API testing
+    "humao.rest-client",
+    
+    # Error lens for inline errors
+    "usernamehw.errorlens"
+  ];
+
+  # Workspace lifecycle hooks
+  idx.workspace = {
+    # Run when workspace is created
+    onCreate = {
+      # Install npm dependencies
+      npm-install = "npm install";
     };
+    
+    # Run when workspace starts
+    onStart = {
+      # Display welcome message
+      welcome = '''
+        echo "🏟️ Welcome to HostCity - FIFA World Cup 2026 Host City Guide"
+        echo ""
+        echo "Quick commands:"
+        echo "  npm start        - Start Expo development server"
+        echo "  npm run android  - Run on Android"
+        echo "  npm run ios      - Run on iOS (requires macOS)"
+        echo "  npm run web      - Run in web browser"
+        echo ""
+      ''';
+    };
+  };
 
-    # Workspace lifecycle hooks
-    workspace = {
-      # Runs when a workspace is first created
-      onCreate = {
-        # Example: install JS dependencies from NPM
-        # npm-install = "npm install";
+  # App preview configuration
+  idx.previews = {
+    enable = true;
+    previews = {
+      # Web preview for Expo
+      web = {
+        command = [
+          "npx",
+          "expo",
+          "start",
+          "--web",
+          "--port",
+          "$PORT"
+        ];
+        manager = "web";
+        # Working directory
+        cwd = ".";
       };
-      # Runs when the workspace is (re)started
-      onStart = {
-        # Example: start a background task to watch and re-build backend code
-        # watch-backend = "npm run watch-backend";
+      
+      # Android preview (if Android SDK available)
+      android = {
+        command = [
+          "npx",
+          "expo",
+          "start",
+          "--android",
+          "--port",
+          "$PORT"
+        ];
+        manager = "web";
       };
     };
   };
